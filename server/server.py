@@ -172,14 +172,22 @@ def FPV_thread():
 
 def run():
     global direction_command, turn_command, SmoothMode, steadyMode
-    moving_threading=threading.Thread(target=move_thread)    #Define a thread for FPV and OpenCV
-    moving_threading.setDaemon(True)                             #'True' means it is a front thread,it would close when the mainloop() closes
-    moving_threading.start()                                     #Thread starts
-
-    info_threading=threading.Thread(target=info_send_client)    #Define a thread for FPV and OpenCV
-    info_threading.setDaemon(True)                             #'True' means it is a front thread,it would close when the mainloop() closes
-    info_threading.start()                                     #Thread starts
-
+    try:
+        moving_threading=threading.Thread(target=move_thread)    #Define a thread for FPV and OpenCV
+        moving_threading.setDaemon(True)                             #'True' means it is a front thread,it would close when the mainloop() closes
+    
+        moving_threading.start()    
+                                     #Thread starts
+    except Exception as e:
+        print('Error while setting moving thread: ' + e)
+        
+    try:
+        info_threading=threading.Thread(target=info_send_client)    #Define a thread for FPV and OpenCV
+        info_threading.setDaemon(True)                             #'True' means it is a front thread,it would close when the mainloop() closes
+        info_threading.start()                                     #Thread starts
+    except Exception as e:
+        print('Error in info_send_client: ' + e)
+        
     ws_R = 0
     ws_G = 0
     ws_B = 0
@@ -380,7 +388,8 @@ if __name__ == '__main__':
 
     try:
         run()
-    except:
+    except Exception as e:
+        print('Something crashed: ' + e)
         LED.colorWipe(Color(0,0,0))
         destory()
         move.clean_all()
